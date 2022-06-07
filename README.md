@@ -1,1 +1,1 @@
-# githubCI
+# тестовый фреймворк для запуска в github Actions
