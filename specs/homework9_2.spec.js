@@ -1,5 +1,6 @@
 import api from '../framework/services';
 import constants, { listEdit } from '../framework/config/constants';
+import {BuilderNamespace} from '../framework/fixtures/builder/builderVikynia';
 const environment = {};
 
 describe('Отправляем http запросы через Мини фреймфорк', () => {
@@ -25,17 +26,9 @@ describe('Отправляем http запросы через Мини фрей�
     expect(jsonData.token.length).toBeGreaterThan(0);
     environment.token = jsonData.token;
   });
-  test('Получение namespace get api/v1/namespaces 200', async () => {
-    const token = environment.token;
-    const response = await api().VikunjaNamespaces().get_namespaces(token);
-    const jsonData = response.body;
-    expect(response.status).toEqual(200);
-    environment.namespaceID = jsonData[0].id;
-  });
-
   test('Создание списка put api/v1/namespaces/{{namespaceID}}/lists 201', async () => {
     const token = environment.token;
-    const namespaceID = environment.namespaceID;
+    const namespaceID = await BuilderNamespace();
     const list = constants.list;
     list.namespace_id = namespaceID;
     const response = await api().VikunjaNamespaces().put_createList(namespaceID,token,list);
@@ -59,7 +52,7 @@ describe('Отправляем http запросы через Мини фрей�
     listEdit.title = title;
     listEdit.description = description;
     listEdit.owner.username = constants.username;
-    listEdit.namespace_id = environment.namespaceID;
+    listEdit.namespace_id = await BuilderNamespace();
     listEdit.is_archived = archived;
     listEdit.hex_color = color;
     listEdit.is_favorite = favour;
