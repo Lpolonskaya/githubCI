@@ -59,15 +59,6 @@ describe('Отправляем http запросы через Мини фрей�
     expect(jsonData.is_favorite).toEqual(favour);
     expect(jsonData.is_archived).toEqual(archived);
   });
-  test('Удаление списка c невалидным токеном api/v1/lists/{{listID}} 200', async () => {
-    const token = '';
-    const ArrayVariables = await BuilderList();      
-    const listID = ArrayVariables[2];
-    const response = await api().VikunjaList().delete_list(listID, token);
-    expect(response.status).toEqual(400);
-    const jsonData = response.body;
-    expect(jsonData.message).toEqual("missing or malformed jwt");
-  });
   test('Удаление списка api/v1/lists/{{listID}} 200', async () => {
     const ArrayVariables = await BuilderList();
     const token = ArrayVariables[0];     
