@@ -1,5 +1,4 @@
 let constants = {
-  token: 'p4iSgaAiYYQv7gGRPFvxzqWp',
   email: "lprofmarine@mail.ru",
   password: "5sofys",
   username: "Liuba5sofys",
