@@ -4,7 +4,7 @@ import {BuilderList, BuilderNamespace, BuilderReg, BuilderRegLogin} from '../fra
 
 describe('Отправляем http запросы через Мини фреймфорк', () => {
   test('Авторизация пользователя. получение токена post api/v1/login 200', async () => {
-    const Registration = await BuilderReg();
+    await BuilderReg();
     const credentials = {
       "long_token": true,
       "password": constants.password,
