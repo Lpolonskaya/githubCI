@@ -1,10 +1,14 @@
 import api from '../framework/services';
 import constants, { listEdit } from '../framework/config/constants';
-import {BuilderList, BuilderNamespace, BuilderReg, BuilderRegLogin} from '../framework/fixtures/builder/builderVikynia';
+import {BuilderList, BuilderNamespace, BuilderRegLogin} from '../framework/fixtures/builder/builderVikynia';
 
+const authorization = {};
 describe('Отправляем http запросы через Мини фреймфорк', () => {
+  beforeAll( async () => {
+    authorization.apikay = await BuilderRegLogin();
+    return authorization.apikay;    
+  });
   test('Авторизация пользователя. получение токена post api/v1/login 200', async () => {
-    await BuilderReg();
     const credentials = {
       "long_token": true,
       "password": constants.password,
@@ -17,9 +21,8 @@ describe('Отправляем http запросы через Мини фрей�
     expect(jsonData.token.length).toBeGreaterThan(0);    
   });
   test('Создание списка put api/v1/namespaces/{{namespaceID}}/lists 201', async () => {
-    const ArrayVariables = await BuilderNamespace();
-    const token = ArrayVariables[0];
-    const namespaceID = ArrayVariables[1];
+    const token = authorization.apikay;
+    const namespaceID = await BuilderNamespace(token);
     const list = constants.list;
     list.namespace_id = namespaceID;
     let response = await api().VikunjaNamespaces().put_createList(namespaceID,token,list);
@@ -36,10 +39,10 @@ describe('Отправляем http запросы через Мини фрей�
   ${'День Космонавта'}|${'Супер тестовое описание'}|${false}|${''}      |${false}
   ${'День Космонавта'}|${'Супер тестовое описание'}|${false}|${''}      |${true}     
   `('Редактирование списка post api/v1/lists/{{listID}} 200', async ({title, description, archived, color , favour  }) => {
-    const ArrayVariables = await BuilderList();
-    const token = ArrayVariables[0];
-    const namespaceID = ArrayVariables[1];    
-    const listID = ArrayVariables[2];
+    const token = authorization.apikay;
+    const ArrayVariables = await BuilderList(token);
+    const namespaceID = ArrayVariables[0];    
+    const listID = ArrayVariables[1];
     const list = constants.listEdit;
     listEdit.id = listID;
     listEdit.title = title;
@@ -59,10 +62,20 @@ describe('Отправляем http запросы через Мини фрей�
     expect(jsonData.is_favorite).toEqual(favour);
     expect(jsonData.is_archived).toEqual(archived);
   });
+  test('Удаление списка c невалидным токеном api/v1/lists/{{listID}} 200', async () => {
+    const token = authorization.apikay;
+    const untoken = '';
+    const ArrayVariables = await BuilderList(token);      
+    const listID = ArrayVariables[1];
+    const response = await api().VikunjaList().delete_list(listID, untoken);
+    expect(response.status).toEqual(400);
+    const jsonData = response.body;
+    expect(jsonData.message).toEqual("missing or malformed jwt");
+  });
   test('Удаление списка api/v1/lists/{{listID}} 200', async () => {
-    const ArrayVariables = await BuilderList();
-    const token = ArrayVariables[0];     
-    const listID = ArrayVariables[2];
+    const token = authorization.apikay;
+    const ArrayVariables = await BuilderList(token);    
+    const listID = ArrayVariables[1];
     const response = await api().VikunjaList().delete_list(listID, token);
     expect(response.status).toEqual(200);
     const jsonData = response.body;
